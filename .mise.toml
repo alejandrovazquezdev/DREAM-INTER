@@ -7,15 +7,19 @@ node = "22"                  # Node.js para microservicio Open Payments
 
 # Tareas comunes
 [tasks.setup]
-description = "Configurar proyecto completo"
+description = "Configurar proyecto completo (Python)"
 run = """
 echo "Configurando DREAM-INTER..."
 python -m venv venv
 source venv/bin/activate || .\\venv\\Scripts\\activate
 pip install -r requirements/development.txt
-cd infrastructure/external_services/node_microservice && npm install
-echo "Setup completo!"
+echo "Setup Python completo!"
+echo "Ahora ejecuta: mise run setup-node"
 """
+
+[tasks.setup-node]
+description = "Instalar dependencias del microservicio Node"
+run = "cd infrastructure/external_services/node_microservice && npm install"
 
 [tasks.dev]
 description = "Iniciar servidor de desarrollo Django"
@@ -23,4 +27,4 @@ run = "python manage.py runserver"
 
 [tasks.node-service]
 description = "Iniciar microservicio Node.js"
-run = "cd infrastructure/external_services/node_microservice && node index.js"
+run = "cd infrastructure/external_services/node_microservice && node server.js"

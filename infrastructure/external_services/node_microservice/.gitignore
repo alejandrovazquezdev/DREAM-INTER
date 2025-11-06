@@ -1,0 +1,12 @@
+# Ignorar archivos sensibles
+.env
+private.key
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Sistema
+.DS_Store
+Thumbs.db

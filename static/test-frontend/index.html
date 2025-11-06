@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Open Payments</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Open Payments Test</h1>
+            <p>Prueba el microservicio de pagos Interledger</p>
+        </header>
+
+        <div class="status-box" id="statusBox">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="statusText">Verificando conexión...</span>
+        </div>
+
+        <main>
+            <!-- Sección: Información de Wallet -->
+            <section class="card">
+                <h2>🔍 Consultar Wallet</h2>
+                <form id="walletForm">
+                    <div class="form-group">
+                        <label for="walletUrl">Wallet Address URL:</label>
+                        <input 
+                            type="text" 
+                            id="walletUrl" 
+                            name="walletUrl" 
+                            placeholder="https://ilp.interledger-test.dev/aledev"
+                            value="https://ilp.interledger-test.dev/aledev"
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Consultar Wallet</button>
+                </form>
+                <div id="walletResult" class="result"></div>
+            </section>
+
+            <!-- Sección: Ejecutar Pago -->
+            <section class="card">
+                <h2>💸 Ejecutar Pago</h2>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="senderWallet">Wallet Remitente:</label>
+                        <input 
+                            type="text" 
+                            id="senderWallet" 
+                            name="senderWallet" 
+                            placeholder="https://ilp.interledger-test.dev/aliciadev"
+                            value="https://ilp.interledger-test.dev/aliciadev"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiverWallet">Wallet Receptor:</label>
+                        <input 
+                            type="text" 
+                            id="receiverWallet" 
+                            name="receiverWallet" 
+                            placeholder="https://ilp.interledger-test.dev/bobdev"
+                            value="https://ilp.interledger-test.dev/bobdev"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Monto (en escala del asset):</label>
+                        <input 
+                            type="number" 
+                            id="amount" 
+                            name="amount" 
+                            placeholder="1000"
+                            value="1000"
+                            min="1"
+                        >
+                        <small>Nota: 1000 = $10.00 con scale 2</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Ejecutar Pago</button>
+                </form>
+                <div id="paymentResult" class="result"></div>
+            </section>
+
+            <!-- Sección: Logs -->
+            <section class="card">
+                <h2>📋 Logs</h2>
+                <div id="logs" class="logs"></div>
+                <button onclick="clearLogs()" class="btn btn-secondary btn-small">Limpiar Logs</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

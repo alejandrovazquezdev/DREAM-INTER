@@ -1,54 +1,203 @@
 # Microservicio Node.js - Open Payments
 
-## 🚀 Servicio de Integración con Interledger
+Servicio REST para manejar pagos con Interledger/Open Payments.
 
-Este microservicio maneja toda la comunicación con Open Payments/Interledger.
+## 🎯 Propósito
 
-### ¿Por qué un microservicio separado?
+Este microservicio actúa como **adaptador** entre Django y la red Interledger. Maneja:
 
-- Open Payments tiene SDK oficial en Node.js
-- Django puede comunicarse vía HTTP/REST
-- Separación de responsabilidades
-- Similar al patrón de OPtutorial
+1. **Autenticación con Open Payments**: Usa clave privada para autenticar
+2. **Flujo completo de pagos**: Grants, quotes, incoming/outgoing payments
+3. **API REST**: Endpoints para que Django pueda consumir
 
-### Estructura:
-
-```
-node_microservice/
-├── package.json          # Dependencias (@interledger/open-payments)
-├── index.js              # Servidor Express/Fastify
-├── .env                  # Credenciales (NUNCA subir a git)
-├── services/
-│   └── open-payments.js  # Lógica de OP (grants, payments, quotes)
-└── routes/
-    └── payments.js       # API REST endpoints
-```
-
-### Endpoints que expondrá:
+## 📂 Arquitectura
 
 ```
-POST /api/payments/create-grant          # Crear grant
-POST /api/payments/create-incoming       # Crear incoming payment
-POST /api/payments/create-quote          # Crear quote
-POST /api/payments/create-outgoing       # Crear outgoing payment
-GET  /api/payments/status/:id            # Estado de pago
+DREAM-INTER/
+├── apps/payments/              ← Django app (domain logic)
+│   └── services/
+│       └── interledger.py      ← Llama a este microservicio
+├── infrastructure/
+│   └── external_services/
+│       └── node_microservice/  ← ✅ ESTÁS AQUÍ
+│           ├── server.js       ← Express API
+│           ├── package.json    ← Dependencias
+│           ├── .env            ← Credenciales (NO en git)
+│           └── private.key     ← Clave privada (NO en git)
 ```
 
-### Cómo Django lo usa:
+**Por qué Node y no Python:**
+- SDK oficial de Interledger es para Node.js
+- Mejor soporte y documentación
+- Microservicio independiente
+
+## 🚀 Setup
+
+### 1. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 2. Configurar credenciales
+
+Copia `.env.example` a `.env` y agrega tus credenciales de https://ilp.interledger-test.dev:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env`:
+```bash
+WALLET_ADDRESS_URL=https://ilp.interledger-test.dev/TU_WALLET
+KEY_ID=tu-key-id-aqui
+```
+
+### 3. Agregar clave privada
+
+Descarga tu `private.key` desde el sitio de Interledger y ponla en esta carpeta.
+
+### 4. Iniciar servicio
+
+```bash
+# Producción
+npm start
+
+# Desarrollo (auto-reload)
+npm run dev
+```
+
+## 📡 API Endpoints
+
+### Health Check
+```bash
+GET /health
+```
+
+Respuesta:
+```json
+{
+  "status": "ok",
+  "service": "Open Payments API",
+  "hasPrivateKey": true,
+  "hasClient": true
+}
+```
+
+### Consultar Wallet
+```bash
+GET /api/wallet/:walletUrl
+```
+
+Ejemplo:
+```bash
+GET /api/wallet/https://ilp.interledger-test.dev/aledev
+```
+
+### Ejecutar Pago
+```bash
+POST /api/payment/execute
+```
+
+Body:
+```json
+{
+  "senderWallet": "https://ilp.interledger-test.dev/alice",
+  "receiverWallet": "https://ilp.interledger-test.dev/bob",
+  "amount": 1000
+}
+```
+
+### Continuar Pago (después de interacción)
+```bash
+POST /api/payment/continue
+```
+
+Body:
+```json
+{
+  "continueUrl": "...",
+  "continueToken": "...",
+  "walletUrl": "...",
+  "quoteId": "..."
+}
+```
+
+## 🧪 Testing
+
+Usa el frontend de prueba en `static/test-frontend/index.html`:
+
+1. Inicia este microservicio: `npm start`
+2. Abre `static/test-frontend/index.html` en el navegador
+3. Prueba los endpoints visualmente
+
+## 🔗 Integración con Django
+
+Django llamará a este servicio así:
 
 ```python
-# En apps/payments/adapters/open_payments_adapter.py
+# apps/payments/services/interledger.py
 import requests
 
-class OpenPaymentsAdapter:
-    def create_payment(self, amount, recipient):
+class InterledgerService:
+    BASE_URL = "http://localhost:3000"
+    
+    def execute_payment(self, sender, receiver, amount):
         response = requests.post(
-            'http://localhost:3000/api/payments/create-outgoing',
-            json={'amount': amount, 'recipient': recipient}
+            f"{self.BASE_URL}/api/payment/execute",
+            json={
+                "senderWallet": sender,
+                "receiverWallet": receiver,
+                "amount": amount
+            }
         )
         return response.json()
 ```
 
-### Basado en OPtutorial:
+## 📦 Dependencias
 
-Este microservicio usa el mismo código de `OPtutorial/index.js` pero expuesto como API REST.
+- **@interledger/open-payments**: SDK oficial de Interledger
+- **express**: Framework web
+- **cors**: CORS para llamadas desde Django
+- **dotenv**: Variables de entorno
+
+## 🔒 Seguridad
+
+⚠️ **NUNCA subir a git:**
+- `.env` (credenciales)
+- `private.key` (clave privada)
+
+Estos archivos están en `.gitignore`.
+
+## 🔄 Flujo de Pago
+
+```
+1. Django recibe request de pago
+     ↓
+2. Django llama a POST /api/payment/execute
+     ↓
+3. Node microservice:
+   - Obtiene wallets
+   - Crea incoming payment grant
+   - Crea incoming payment
+   - Crea quote grant
+   - Crea quote
+   - Crea outgoing payment grant
+   - (Puede requerir interacción del usuario)
+   - Crea outgoing payment
+     ↓
+4. Node devuelve resultado a Django
+     ↓
+5. Django guarda transacción en BD
+     ↓
+6. Django notifica al usuario
+```
+
+## 📝 TODO
+
+- [ ] Agregar logging estructurado
+- [ ] Implementar retry logic
+- [ ] Agregar rate limiting
+- [ ] Métricas con Prometheus
+- [ ] Tests unitarios
+- [ ] Dockerizar servicio
