@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+local_settings.py
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node.js (para el microservicio)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Interledger credentials
+private.key
+*.pem
+*.key
+!public.key
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Mise
+.mise.local.toml
+
+# Database
+*.sqlite3
+*.db

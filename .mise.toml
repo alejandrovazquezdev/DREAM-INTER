@@ -1,0 +1,26 @@
+# Mise configuration for DREAM-INTER
+# Gestión de versiones de herramientas de desarrollo
+
+[tools]
+python = "3.12"              # Python para Django
+node = "22"                  # Node.js para microservicio Open Payments
+
+# Tareas comunes
+[tasks.setup]
+description = "Configurar proyecto completo"
+run = """
+echo "Configurando DREAM-INTER..."
+python -m venv venv
+source venv/bin/activate || .\\venv\\Scripts\\activate
+pip install -r requirements/development.txt
+cd infrastructure/external_services/node_microservice && npm install
+echo "Setup completo!"
+"""
+
+[tasks.dev]
+description = "Iniciar servidor de desarrollo Django"
+run = "python manage.py runserver"
+
+[tasks.node-service]
+description = "Iniciar microservicio Node.js"
+run = "cd infrastructure/external_services/node_microservice && node index.js"
