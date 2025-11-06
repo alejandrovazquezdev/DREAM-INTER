@@ -1,0 +1,24 @@
+# Dependencias base - Comunes a todos los ambientes
+# Instalar con: pip install -r requirements/base.txt
+
+# Django
+Django>=5.0,<5.1
+djangorestframework>=3.14.0
+
+# Base de datos
+psycopg2-binary>=2.9.9  # PostgreSQL
+dj-database-url>=2.1.0   # Parser de DATABASE_URL
+
+# Variables de entorno
+python-dotenv>=1.0.0
+django-environ>=0.11.0
+
+# Utilidades
+python-slugify>=8.0.1
+Pillow>=10.1.0          # Manejo de imágenes
+
+# Seguridad
+django-cors-headers>=4.3.0
+
+# Fechas y tiempo
+python-dateutil>=2.8.2

@@ -1,0 +1,17 @@
+# Dependencias para producción
+# Instalar con: pip install -r requirements/production.txt
+
+-r base.txt
+
+# Servidor WSGI
+gunicorn>=21.2.0
+
+# Seguridad adicional
+django-security>=0.18.0
+
+# Monitoring (opcional)
+sentry-sdk>=1.38.0
+
+# Cache
+redis>=5.0.1
+django-redis>=5.4.0
